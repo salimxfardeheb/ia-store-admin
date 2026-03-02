@@ -46,15 +46,41 @@ export const STATUS_STYLES: Record<string, string> = {
 };
 
 export const NAV_ITEMS = [
-  { id: "overview",   icon: LayoutDashboard, label: "Vue d'ensemble",  href: "/admin"            },
-  { id: "catalog",    icon: Package,         label: "Catalogue",       href: "/admin/catalog"    },
-  { id: "orders",     icon: ShoppingBag,     label: "Commandes",       href: "/admin/orders"     },
-  { id: "customers",  icon: Users,           label: "Clients",         href: "/admin/customers"  },
-  { id: "analytics",  icon: BarChart3,       label: "Analytiques",     href: "/admin/analytics"  },
-  { id: "finance",    icon: Wallet,          label: "Finance",         href: "/admin/finance"    },
+  { id: "overview",   icon: LayoutDashboard, label: "Vue d'ensemble",  href: "/"            },
+  { id: "catalog",    icon: Package,         label: "Catalogue",       href: "/catalog"    },
+  { id: "orders",     icon: ShoppingBag,     label: "Commandes",       href: "/orders"     },
+  { id: "customers",  icon: Users,           label: "Clients",         href: "/customers"  },
+  { id: "analytics",  icon: BarChart3,       label: "Analytiques",     href: "/analytics"  },
+  { id: "finance",    icon: Wallet,          label: "Finance",         href: "/finance"    },
 ];
 
 export const BOTTOM_NAV = [
-  { id: "planning",  icon: Calendar, label: "Planning",    href: "/admin/planning"  },
-  { id: "settings",  icon: Settings, label: "Paramètres",  href: "/admin/settings"  },
+  { id: "planning",  icon: Calendar, label: "Planning",    href: "/planning"  },
+  { id: "settings",  icon: Settings, label: "Paramètres",  href: "/settings"  },
 ];
+
+export interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  sizes: string[];
+  status: "Actif" | "Brouillon" | "Archivé";
+  createdAt: string;
+}
+
+export const CATEGORIES = ["Tous", "Costumes", "Maille", "Manteaux", "Chemises", "Pantalons", "Accessoires", "Chaussures"];
+
+export const INITIAL_PRODUCTS: Product[] = [];
+
+export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "Unique"];
+export const SHOE_SIZE_OPTIONS = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+
+export const STATUSES   = ["Tous", "Actif", "Brouillon", "Archivé"];
+
+export const STATUS_STYLE: Record<string, string> = {
+  "Actif":    "bg-black text-white",
+  "Brouillon":"bg-black/8 text-black",
+  "Archivé":  "bg-black/5 text-black/40",
+};

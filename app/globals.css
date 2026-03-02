@@ -15,7 +15,6 @@
   --bg-dark: #0A0A0A;
   --bg-mid: #3A3A3A;
   --bg-muted: #9A9A9A;
-  --bg-brrder: rgba(0,0,0,0.08);
   --bg-accent: #0A0A0A;
   
 }
@@ -24,27 +23,5 @@
   body {
     @apply bg-[#fdfcfb] text-[#1a1a1a] font-sans antialiased;
   }
-  .livre {
-    @apply bg-black text-white;
-  }
-  .en-attente {
-    @apply bg-black/10 text-black;
-  }
-  .retard{
-    @apply bg-black text-white border border-black/20;
-  }
-  .confirme{
-    @apply bg-black/5 text-black;
-  }
-  .Expédie {
-    @apply bg-black/80 text-white;
-  }
-}
 
-.luxury-shadow {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
-}
-
-.text-balance {
-  text-wrap: balance;
 }

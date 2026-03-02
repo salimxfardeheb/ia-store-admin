@@ -67,8 +67,8 @@ export default function AdminSidebar() {
             icon={item.icon}
             label={item.label}
             active={
-              item.href === "/admin"
-                ? pathname === "/admin"
+              item.href === "/"
+                ? pathname === "/"
                 : pathname.startsWith(item.href)
             }
           />
