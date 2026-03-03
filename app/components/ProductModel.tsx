@@ -4,12 +4,17 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { X, ChevronDown } from "lucide-react";
 import {
-  INITIAL_PRODUCTS,
   Product,
   SIZE_OPTIONS,
   SHOE_SIZE_OPTIONS,
-} from "../variables";
+  SizeEntry,
+  } from "../variables";
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const totalStock = (sizes: SizeEntry[]) =>
+  sizes.reduce((sum, s) => sum + s.quantity, 0);
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function ProductModel({
   product,
   onClose,
@@ -26,11 +31,12 @@ export default function ProductModel({
   const [newCategoryInput, setNewCategoryInput] = useState("");
   const [showAddCategory, setShowAddCategory] = useState(false);
   const isNew = !product;
+
   const [form, setForm] = useState<Product>(
     product ?? {
-      id: `PRD-${String(INITIAL_PRODUCTS.length + 1).padStart(3, "0")}`,
+      id: "",
       name: "",
-      category: "Costumes",
+      category: categories.find((c) => c !== "Tous") ?? "Costumes",
       price: 0,
       stock: 0,
       sizes: [],
@@ -43,13 +49,26 @@ export default function ProductModel({
     },
   );
 
-  const toggleSize = (s: string) =>
-    setForm((f) => ({
-      ...f,
-      sizes: f.sizes.includes(s)
-        ? f.sizes.filter((x) => x !== s)
-        : [...f.sizes, s],
-    }));
+  // Toggle size on/off
+  const toggleSize = (size: string) => {
+    setForm((f) => {
+      const exists = f.sizes.find((s) => s.size === size);
+      const sizes = exists
+        ? f.sizes.filter((s) => s.size !== size)
+        : [...f.sizes, { size, quantity: 1 }];
+      return { ...f, sizes, stock: totalStock(sizes) };
+    });
+  };
+
+  // Update quantity for a specific size
+  const updateQuantity = (size: string, quantity: number) => {
+    setForm((f) => {
+      const sizes = f.sizes.map((s) =>
+        s.size === size ? { ...s, quantity: Math.max(0, quantity) } : s,
+      );
+      return { ...f, sizes, stock: totalStock(sizes) };
+    });
+  };
 
   const handleAddCategory = () => {
     const trimmed = newCategoryInput.trim();
@@ -59,6 +78,11 @@ export default function ProductModel({
     setNewCategoryInput("");
     setShowAddCategory(false);
   };
+
+  const sizeOptions =
+    form.category === "Chaussures" ? SHOE_SIZE_OPTIONS : SIZE_OPTIONS;
+
+  const selectedSizes = form.sizes.map((s) => s.size);
 
   return (
     <motion.div
@@ -73,11 +97,11 @@ export default function ProductModel({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.2 }}
-        className="bg-white w-full max-w-lg mx-4 relative"
+        className="bg-white w-full max-w-lg mx-4 relative max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-7 py-5 border-b font-serif">
+        <div className="flex items-center justify-between px-7 py-5 border-b border-[rgba(0,0,0,0.08)] shrink-0">
           <div>
             <h2 className="text-lg text-black font-serif italic font-light">
               {isNew ? "Nouveau produit" : "Modifier le produit"}
@@ -94,8 +118,8 @@ export default function ProductModel({
           </button>
         </div>
 
-        {/* Form */}
-        <div className="px-7 py-6 space-y-5">
+        {/* Form — scrollable */}
+        <div className="px-7 py-6 space-y-5 overflow-y-auto">
           {/* Name */}
           <div>
             <label className="block text-[8px] uppercase tracking-[0.3em] text-black/40 mb-1.5 font-serif">
@@ -122,7 +146,7 @@ export default function ProductModel({
                     if (e.target.value === "__add__") {
                       setShowAddCategory(true);
                     } else {
-                      setForm({ ...form, category: e.target.value, sizes: [] });
+                      setForm({ ...form, category: e.target.value, sizes: [], stock: 0 });
                       setShowAddCategory(false);
                     }
                   }}
@@ -199,11 +223,11 @@ export default function ProductModel({
             </div>
           </div>
 
-          {/* Price + Stock */}
+          {/* Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[8px] uppercase tracking-[0.3em] text-black/40 mb-1.5 font-serif">
-                Prix (€)
+                Prix (DA)
               </label>
               <input
                 type="number"
@@ -214,50 +238,128 @@ export default function ProductModel({
                 className="w-full border text-[11px] py-2.5 px-3 focus:outline-none focus:border-black transition-colors bg-[#F7F7F7] border-[rgba(0,0,0,0.08)] font-serif"
               />
             </div>
+
+            {/* Stock total — readonly, calculé */}
             <div>
               <label className="block text-[8px] uppercase tracking-[0.3em] text-black/40 mb-1.5 font-serif">
-                Stock
+                Stock total
               </label>
-              <input
-                type="number"
-                value={form.stock}
-                onChange={(e) =>
-                  setForm({ ...form, stock: Number(e.target.value) })
-                }
-                className="w-full border text-[11px] py-2.5 px-3 focus:outline-none focus:border-black transition-colors bg-[#F7F7F7] font-serif border-[rgba(0,0,0,0.08)]"
-              />
+              <div className="w-full border text-[11px] py-2.5 px-3 bg-[#F2F0ED] text-black/40 font-serif italic border-[rgba(0,0,0,0.08)] select-none">
+                {form.stock} unité{form.stock !== 1 ? "s" : ""}
+              </div>
             </div>
           </div>
 
-          {/* Sizes */}
+          {/* Sizes + quantities */}
           <div>
-            <label className="block text-[8px] uppercase tracking-[0.3em] text-black/40 mb-2 font-serif">
-              Tailles disponibles
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {(form.category === "Chaussures"
-                ? SHOE_SIZE_OPTIONS
-                : SIZE_OPTIONS
-              ).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => toggleSize(s)}
-                  className={`px-3 py-1.5 text-[9px] uppercase tracking-widest border transition-all font-serif ${
-                    form.sizes.includes(s)
-                      ? "bg-black text-white border-black"
-                      : "bg-white text-black/40 border-black/10 hover:border-black/30"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="flex items-baseline justify-between mb-3">
+              <label className="block text-[8px] uppercase tracking-[0.3em] text-black/40 font-serif">
+                Tailles & quantités
+              </label>
+              {selectedSizes.length > 0 && (
+                <span className="text-[8px] text-black/25 font-serif italic">
+                  {selectedSizes.length} taille{selectedSizes.length > 1 ? "s" : ""} sélectionnée{selectedSizes.length > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
+
+            {/* Size grid */}
+            <div className="flex flex-wrap gap-2">
+              {sizeOptions.map((s) => {
+                const entry = form.sizes.find((e) => e.size === s);
+                const isSelected = !!entry;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => toggleSize(s)}
+                    className={`px-3 py-1.5 text-[9px] uppercase tracking-widest border transition-all font-serif ${
+                      isSelected
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-black/40 border-black/10 hover:border-black/30"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quantity inputs for selected sizes */}
+            {form.sizes.length > 0 && (
+              <div className="mt-4 border border-[rgba(0,0,0,0.08)] divide-y divide-[rgba(0,0,0,0.05)]">
+                {form.sizes.map(({ size, quantity }) => (
+                  <div
+                    key={size}
+                    className="flex items-center justify-between px-4 py-2.5"
+                  >
+                    <span className="text-[9px] uppercase tracking-widest text-black/60 font-serif w-10">
+                      {size}
+                    </span>
+
+                    <div className="flex items-center gap-0">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(size, quantity - 1)}
+                        className="w-7 h-7 flex items-center justify-center text-black/30 hover:text-black hover:bg-black/5 transition-colors text-sm font-light"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        min={0}
+                        value={quantity}
+                        onChange={(e) =>
+                          updateQuantity(size, Number(e.target.value))
+                        }
+                        className="w-12 text-center text-[11px] font-serif border-x border-[rgba(0,0,0,0.08)] py-1.5 focus:outline-none bg-[#F7F7F7] focus:bg-white transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(size, quantity + 1)}
+                        className="w-7 h-7 flex items-center justify-center text-black/30 hover:text-black hover:bg-black/5 transition-colors text-sm font-light"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <span className="text-[8px] text-black/25 font-serif italic w-16 text-right">
+                      {quantity} unité{quantity !== 1 ? "s" : ""}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleSize(size)}
+                      className="ml-3 text-black/20 hover:text-black transition-colors"
+                      title="Retirer cette taille"
+                    >
+                      <X size={11} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Total row */}
+                <div className="flex items-center justify-between px-4 py-2.5 bg-[#F7F7F7]">
+                  <span className="text-[8px] uppercase tracking-[0.2em] text-black/30 font-serif">
+                    Total
+                  </span>
+                  <span className="text-[11px] font-serif text-black italic">
+                    {form.stock} unité{form.stock !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {form.sizes.length === 0 && (
+              <p className="mt-3 text-[9px] text-black/20 font-serif italic">
+                Sélectionnez les tailles disponibles ci-dessus.
+              </p>
+            )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-7 py-5 border-t flex justify-end space-x-3 border-[rgba(0,0,0,0.08)]">
+        <div className="px-7 py-5 border-t flex justify-end space-x-3 border-[rgba(0,0,0,0.08)] shrink-0">
           <button
             onClick={onClose}
             className="px-6 py-2.5 border text-[9px] uppercase tracking-widest text-black/50 hover:text-black hover:border-black/30 transition-all font-serif border-[rgba(0,0,0,0.08)]"
