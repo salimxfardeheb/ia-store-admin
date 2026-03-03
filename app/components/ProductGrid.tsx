@@ -23,9 +23,17 @@ export default function ProductGrid({
           transition={{ delay: i * 0.04 }}
           className="bg-white border group relative overflow-hidden border-[rgba(0,0,0,0.08)]"
         >
-          {/* Placeholder image */}
+          {/* Image */}
           <div className="h-48 bg-[#F2F0ED] flex items-center justify-center relative overflow-hidden">
-            <Package size={32} strokeWidth={0.75} className="text-black/10" />
+            {product.mainImage ? (
+              <img
+                src={product.mainImage}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Package size={32} strokeWidth={0.75} className="text-black/10" />
+            )}
             {product.stock === 0 && (
               <div className="absolute top-3 left-3 bg-black text-white text-[7px] uppercase tracking-widest px-2 py-0.5 font-serif">
                 Épuisé
@@ -64,7 +72,7 @@ export default function ProductGrid({
             </h3>
             <div className="flex items-center justify-between">
               <span className="text-base text-black font-serif italic font-light">
-                {product.price.toLocaleString("fr-FR")} €
+                {product.price.toLocaleString("fr-FR")} DA
               </span>
               <span className="text-[8px] uppercase tracking-widest text-black/30 font-serif">
                 {product.category}
@@ -73,10 +81,10 @@ export default function ProductGrid({
             <div className="flex flex-wrap gap-1 mt-2.5">
               {product.sizes.slice(0, 4).map((s) => (
                 <span
-                  key={s}
+                  key={s.size}
                   className="text-[7px] px-1.5 py-0.5 border border-black/10 text-black/40 uppercase tracking-widest font-serif"
                 >
-                  {s}
+                  {s.size}
                 </span>
               ))}
               {product.sizes.length > 4 && (

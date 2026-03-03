@@ -19,6 +19,8 @@ export async function getAllProducts(): Promise<Product[]> {
         sizes: data.sizes ?? [],
         status: data.status ?? "Brouillon",
         createdAt: data.createdAt ?? "",
+        mainImage: data.mainImage,
+        extraImages: data.extraImages ?? []
       };
 
       return product;
