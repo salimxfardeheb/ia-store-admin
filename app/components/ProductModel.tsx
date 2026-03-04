@@ -156,7 +156,7 @@ export default function ProductModel({
   };
 
   const sizeOptions =
-    form.category === "Chaussures" ? SHOE_SIZE_OPTIONS : SIZE_OPTIONS;
+    form.category.toLocaleLowerCase().includes("chaussure") ? SHOE_SIZE_OPTIONS : SIZE_OPTIONS;
   const selectedSizes = form.sizes.map((s) => s.size);
 
   return (
@@ -242,7 +242,7 @@ export default function ProductModel({
               </div>
 
               {/* Images supplémentaires */}
-              <div className="flex-[2]">
+              <div className="flex-2">
                 <p className="text-[8px] text-black/30 font-serif mb-1.5">
                   Supplémentaires <span className="text-black/25 italic">(max 4)</span>
                 </p>

@@ -7,10 +7,10 @@ import AdminHeader from "../components/AdminHeader";
 import ProductModel from "../components/ProductModel";
 import ProductTable from "../components/ProductTable";
 import ProductGrid from "../components/ProductGrid";
-import { Product, STATUSES, CATEGORIES } from "../variables";
+import { Product, STATUSES } from "../variables";
 import { addProduct } from "../firebase/addProduct";
 import { updateProduct } from "../firebase/updateProduct";
-import { getAllProducts } from "../firebase/getProduct";
+import { getAllProducts, getCategories } from "../firebase/getProduct";
 import { deleteProduct } from "../firebase/deleteProduct";
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -22,12 +22,13 @@ export default function CatalogPage() {
   const [statusFilter, setStatusFilter] = useState("Tous");
   const [sortKey, setSortKey] = useState<keyof Product>("id");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [categories, setCategories] = useState(CATEGORIES);
+  const [categories, setCategories] = useState<string[]>([]);
   const [editProduct, setEditProduct] = useState<Product | null | undefined>(
     undefined,
   );
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"table" | "grid">("table");
+  
 
   // Fetch products from Firestore on mount
   useEffect(() => {
@@ -40,6 +41,19 @@ export default function CatalogPage() {
 
     fetchProducts();
   }, []);
+
+    useEffect(() => {
+    const getCategoriesProducts = async () => {
+      setLoading(true);
+      const data = await getCategories();
+      setCategories(["Tous", ...data]);
+      setLoading(false);
+    };
+
+    getCategoriesProducts();
+  }, []);
+
+  console.log(categories)
 
   // Filter + sort
   const filtered = products
@@ -152,7 +166,7 @@ export default function CatalogPage() {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="border bg-white text-[10px] uppercase tracking-widest py-2.5 pl-3 pr-8 focus:outline-none appearance-none hover:border-black/25 transition-colors font-serif border-[rgba(0,0,0,0.08)]"
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>

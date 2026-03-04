@@ -20,11 +20,25 @@ export async function getAllProducts(): Promise<Product[]> {
         status: data.status ?? "Brouillon",
         createdAt: data.createdAt ?? "",
         mainImage: data.mainImage,
-        extraImages: data.extraImages ?? []
+        extraImages: data.extraImages ?? [],
       };
 
       return product;
     });
+  } catch (e) {
+    console.error("firestore error", e);
+    return [];
+  }
+}
+
+export async function getCategories() {
+  try {
+    const req = query(collection(db, "products"));
+    const reqSnapshot = await getDocs(req);
+    
+    const categories = reqSnapshot.docs.map((doc) => doc.data().category as string);
+    
+    return [...new Set(categories)];
   } catch (e) {
     console.error("firestore error", e);
     return [];

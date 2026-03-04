@@ -73,8 +73,8 @@ export interface Product {
   sizes: SizeEntry[];
   status: "Actif" | "Brouillon" | "Archivé";
   createdAt: string;
-  mainImage: string;        // URL Firebase Storage
-  extraImages?: string[];   // URLs optionnelles
+  mainImage: string;
+  extraImages?: string[];
 }
 
 export const CATEGORIES = ["Tous", "Costumes", "Maille", "Manteaux", "Chemises", "Pantalons", "Accessoires", "Chaussures"];
