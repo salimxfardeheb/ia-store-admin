@@ -52,9 +52,6 @@ export default function CatalogPage() {
 
     getCategoriesProducts();
   }, []);
-
-  console.log(categories)
-
   // Filter + sort
   const filtered = products
     .filter(

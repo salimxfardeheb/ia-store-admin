@@ -45,6 +45,12 @@ export const STATUS_STYLES: Record<string, string> = {
   "Expédié":    "bg-black/80 text-white",
 };
 
+export const STATUS_STYLE: Record<string, string> = {
+  "Actif":    "bg-black text-white",
+  "Brouillon":"bg-black/8 text-black",
+  "Archivé":  "bg-black/5 text-black/40",
+};
+
 export const NAV_ITEMS = [
   { id: "overview",   icon: LayoutDashboard, label: "Vue d'ensemble",  href: "/"            },
   { id: "catalog",    icon: Package,         label: "Catalogue",       href: "/catalog"    },
@@ -58,6 +64,66 @@ export const BOTTOM_NAV = [
   { id: "planning",  icon: Calendar, label: "Planning",    href: "/planning"  },
   { id: "settings",  icon: Settings, label: "Paramètres",  href: "/settings"  },
 ];
+
+export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "Unique"];
+export const SHOE_SIZE_OPTIONS = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+export const STATUSES   = ["Tous", "Actif", "Brouillon", "Archivé"];
+
+export const WILAYAS = [
+  "Adrar",
+  "Chlef",
+  "Laghouat",
+  "Oum El Bouaghi",
+  "Batna",
+  "Béjaïa",
+  "Biskra",
+  "Béchar",
+  "Blida",
+  "Bouira",
+  "Tamanrasset",
+  "Tébessa",
+  "Tlemcen",
+  "Tiaret",
+  "Tizi Ouzou",
+  "Alger",
+  "Djelfa",
+  "Jijel",
+  "Sétif",
+  "Saïda",
+  "Skikda",
+  "Sidi Bel Abbès",
+  "Annaba",
+  "Guelma",
+  "Constantine",
+  "Médéa",
+  "Mostaganem",
+  "M'Sila",
+  "Mascara",
+  "Ouargla",
+  "Oran",
+  "El Bayadh",
+  "Illizi",
+  "Bordj Bou Arréridj",
+  "Boumerdès",
+  "El Tarf",
+  "Tindouf",
+  "Tissemsilt",
+  "El Oued",
+  "Khenchela",
+  "Souk Ahras",
+  "Tipaza",
+  "Mila",
+  "Aïn Defla",
+  "Naâma",
+  "Aïn Témouchent",
+  "Ghardaïa",
+  "Relizane",
+];
+//  ─── interfaces ────────────────────────────────────────────────────────────────
+
+//  ********************************************************************************************************************
+
+//  ─── products  ────────────────────────────────────────────────────────────────
 
 export interface SizeEntry {
   size: string;
@@ -77,17 +143,66 @@ export interface Product {
   extraImages?: string[];
 }
 
-export const CATEGORIES = ["Tous", "Costumes", "Maille", "Manteaux", "Chemises", "Pantalons", "Accessoires", "Chaussures"];
+//  ********************************************************************************************************************
 
-export const INITIAL_PRODUCTS: Product[] = [];
+//  ─── Profile  ────────────────────────────────────────────────────────────────
 
-export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "Unique"];
-export const SHOE_SIZE_OPTIONS = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"];
+export interface Profile extends UserProfile {
+  phone: string;
+  city: string;
+  address: string;
+  postalCode: string;
+}
 
-export const STATUSES   = ["Tous", "Actif", "Brouillon", "Archivé"];
+export interface UserProfile {
+  uid: string;
+  email: string;
+  name: string;
+  createdAt?: string;
+}
 
-export const STATUS_STYLE: Record<string, string> = {
-  "Actif":    "bg-black text-white",
-  "Brouillon":"bg-black/8 text-black",
-  "Archivé":  "bg-black/5 text-black/40",
+//  ********************************************************************************************************************
+
+//  ─── Orders  ────────────────────────────────────────────────────────────────
+
+export interface Order {
+  id: string;
+  form: OrderForm;
+  items: CartItem[];
+  total: number;
+  status: OrderStatus;
+  createdAt: unknown;
+}
+
+export interface OrderForm extends Profile {
+  paymentMethod: "cash" | "card";
+  deliveryType: "home" | "bureau";
+}
+
+export interface CartItem extends Product {
+  quantity: number;
+}
+
+
+export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+
+// ── Config ───────────────────────────────────────────────────────────────────
+
+export const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; bg: string }> = {
+  pending:   { label: "En attente",  color: "text-amber-600",  bg: "bg-amber-50"  },
+  confirmed: { label: "Confirmée",   color: "text-blue-600",   bg: "bg-blue-50"   },
+  shipped:   { label: "Expédiée",    color: "text-purple-600", bg: "bg-purple-50" },
+  delivered: { label: "Livrée",      color: "text-emerald-600",bg: "bg-emerald-50"},
+  cancelled: { label: "Annulée",     color: "text-red-500",    bg: "bg-red-50"    },
 };
+
+export const STATUS_FLOW: OrderStatus[] = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+export function formatDate(ts: { seconds: number } | null) {
+  if (!ts) return "—";
+  return new Date(ts.seconds * 1000).toLocaleDateString("fr-FR", {
+    day: "numeric", month: "short", year: "numeric",
+  });
+}
